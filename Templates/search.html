@@ -1,35 +1,52 @@
 {% extends "default.html" %}
 
+{% block header %}
+<title> {% if query %} {{ query }} {% else %} Search {% endif %} </title>
+<style>
+    .card-img{
+        max-height: 5em;
+        max-width: 5em;
+    }
+</style>
+{% endblock %}
+
 {% block body %}
-<div class="login-form">
-    <form action="" method="post">
-        <h2 class="text-center">Search</h2>
-        <div class="form-group">
-            <div class="input-group">
-                <input type="text" class="form-control" placeholder="Song Name" name="query" required="required" value="{{ query }}">
-                <div class="input-group-btn">
-                    <button class="btn btn-outline-secondary" type="submit">Search</button>
-                </div>
-            </div>
-        </div>
-        <h3>Results</h3>
-        {% for result in results %}
-        <div class="card mb-3" id="song-card">
-            <a href="{{ "/song/"+result.id }}">
-            <div class="row no-gutters">
-                <div class="col-md-4">
-                    <img src="{{ result.image }}" class="card-img">
-                </div>
-                <div class="col-md-8">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ result.title }}</h5>
-                        <p class="card-text">{{ result.artist }}</p>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-6">
+            <form action="" method="post">
+                <h2 class="text-center">Search</h2>
+                <div class="form-group">
+                    <div class="input-group">
+                        <input type="text" class="form-control" placeholder="Song Name" name="query" required="required" value="{{ query }}">
+                        <div class="input-group-btn">
+                            <button class="btn btn-outline-secondary" type="submit">Search</button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            </a>
+                <h3>Results</h3>
+                {% for result in results %}
+                <div class="card" id="song-card">
+                    <a href="{{ "/song/"+result.id }}">
+                    <div class="row no-gutters">
+                        <div class="col-sm-2" style="max-width:7em">
+                            <img src="{{ result.image }}" class="card-img">
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ result.title }}</h5>
+                                <p class="card-text">{{ result.artist }}</p>
+                            </div>
+                        </div>
+                        <div class="col-sm-6"></div>
+                    </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </form>
         </div>
-        {% endfor %}
-    </form>
+        <div class="col-md-3"></div>
+    </div>
 </div>
 {% endblock %}
