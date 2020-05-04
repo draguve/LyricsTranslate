@@ -10,7 +10,7 @@ var bodyParser = require('body-parser');
 
 
 var app = express();
-var port = 3000
+var port = process.env.PORT || 3000
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -124,4 +124,4 @@ app.get("/test/",async (req,res) => {
 var languages = JSON.parse(JSON.stringify(translate.languages));
 delete languages.auto;
 
-app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
+app.listen(port, () => console.log(`Example app listening at ${port}`))
