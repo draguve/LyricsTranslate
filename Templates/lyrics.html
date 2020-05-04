@@ -1,0 +1,63 @@
+{% extends "default.html" %}
+
+{% block header %}
+<title>Test</title>
+<style>
+    #header{
+        margin-top: 30px ;
+    }
+
+    #card{
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <nav class="navbar navbar-light justify-content-between" id="header">
+        <a class="navbar-brand">Lyrics</a>
+<!--        <form class="form-inline my-2 my-lg-0">-->
+<!--            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="query">-->
+<!--            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
+<!--        </form>-->
+    </nav>
+    <section class="details-card jumbotron jumbotron-fluid">
+        <div class="container">
+            <div class="row">
+                <div class="row no-gutters">
+                    <div class="col-md-2">
+                        <img src="{{ img }}" class="card-img">
+                    </div>
+                    <div class="col-md-10">
+                        <div class="card-body">
+                            <h2 class="card-title">{{ title }}</h2>
+                            <p class="card-text">{{ artist }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="details-card jumbotron jumbotron-fluid">
+        <div class="container">
+            <div class="row">
+                {% for result in results %}
+                <div class="col-md-6" id="card">
+                    <div class="card-content">
+                        <div class="card-img">
+                            <h2>{{ result.lang }}</h2>
+                        </div>
+                        <div class="card-desc">
+                            {{ result.text | safe }}
+                        </div>
+                    </div>
+                </div>
+                {%- endfor %}
+            </div>
+        </div>
+    </section>
+</div>
+
+{% endblock %}

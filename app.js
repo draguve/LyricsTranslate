@@ -1,5 +1,6 @@
 var express = require('express');
 var nunjucks = require('nunjucks');
+
 var Genius = require("node-genius");
 var geniusClient = new Genius("NnQ25Wn1Tc0Lmpz2eRvInOqjGOPLuJzZGtNSFE6yr1EypL_CowwC9SfkvVtZCWj7");
 const fetch = require('node-fetch');
@@ -10,7 +11,7 @@ var bodyParser = require('body-parser');
 
 
 var app = express();
-var port = 3000;
+var port = 3000
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -60,7 +61,7 @@ function parseSongHTML(htmlText) {
     }
 }
 
-app.get('/song/:id', function (req, res) {
+app.get('/song/:id', async (req, res) => {
     geniusClient.getSong(req.params.id, function (error, song) {
         if(error) return res.send(error)
         song = JSON.parse(song);
@@ -69,29 +70,59 @@ app.get('/song/:id', function (req, res) {
         }).then(response => {
             if (response.ok) return response.text()
             throw new Error('Could not get song url ...')
-        }).then(parseSongHTML).then(data => {
-            translate(data.lyrics, { from: 'en', to: 'fr' }).then(returnResult => {
-                // console.log(res.text); // OUTPUT: Je vous remercie
-                // console.log(res.from.autoCorrected); // OUTPUT: true
-                // console.log(res.from.text.value); // OUTPUT: [Thank] you
-                // console.log(res.from.text.didYouMean); // OUTPUT: false
-                translate(returnResult.text, { from: 'fr', to: 'en' }).then(second => {
-                    return res.send(second.text);
-                }).catch(err => {
-                    res.send(err);
-                    console.error(err);
-                });
-            }).catch(err => {
-                res.send(err);
-                console.error(err);
-            });
+        }).then(parseSongHTML).then(async(data) => {
+            var lang = "fr"
+            var queue = ["en",lang,"en"];
+            var results = [];
+            var init = {
+                conv:data.lyrics,
+                lang:"en",
+                text:data.lyrics.replace(/(?:\r\n|\r|\n)/g, '<br>')
+            }
+            results.push(init);
+            for(var i=1;i<queue.length;i++){
+                try{
+                    let newTranslation = await translate(results[i-1].conv,{from:queue[i-1],to:queue[i]});
+                    var conversion = {
+                        conv:newTranslation.text,
+                        lang:results[i-1].lang+"->"+queue[i],
+                        text:newTranslation.text.replace(/(?:\r\n|\r|\n)/g, '<br>')
+                    }
+                    results.push(conversion);
+                }catch(error){
+                    console.error(error);
+                    return res.send(error);
+                }
+            }
+            var rendererData = {
+                title:song.response.song.title_with_featured,
+                img:song.response.song.song_art_image_thumbnail_url,
+                artist:song.response.song.album.full_title,
+                results:results.reverse()
+            }
+            return res.render("lyrics.html",rendererData);
             // res.send(data.lyrics);
         }).catch(err => {
             res.send(err);
             console.error(err);
-        });;
-    })
-    //return res.render('index.html');
+        });
+    });
+    //return res.render('lyrics.html');
+});
+
+app.get("/test/",async (req,res) => {
+    fetch(`https://genius.com/King-gizzard-and-the-lizard-wizard-self-immolate-lyrics`, {
+        method: 'GET',
+    }).then(response => {
+        if (response.ok) return response.text()
+        throw new Error('Could not get song url ...')
+    }).then(parseSongHTML).then(data => {
+        var lyr = data.lyrics.replace(/(?:\r\n|\r|\n)/g, '<br>');
+        var renderer={
+            lyrics : lyr
+        }
+        return res.render('lyrics.html',renderer) ;
+    });
 });
 
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))
