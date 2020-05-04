@@ -6,7 +6,6 @@ var geniusClient = new Genius("NnQ25Wn1Tc0Lmpz2eRvInOqjGOPLuJzZGtNSFE6yr1EypL_Co
 const fetch = require('node-fetch');
 var cheerio = require('cheerio');
 const translate = require('@k3rn31p4nic/google-translate-api');
-
 var bodyParser = require('body-parser');
 
 
@@ -62,6 +61,12 @@ function parseSongHTML(htmlText) {
 }
 
 app.get('/song/:id', async (req, res) => {
+    var lang = req.query.lang;
+    if(lang in languages){
+
+    }else{
+        lang = "fr";
+    }
     geniusClient.getSong(req.params.id, function (error, song) {
         if(error) return res.send(error)
         song = JSON.parse(song);
@@ -71,12 +76,11 @@ app.get('/song/:id', async (req, res) => {
             if (response.ok) return response.text()
             throw new Error('Could not get song url ...')
         }).then(parseSongHTML).then(async(data) => {
-            var lang = "fr"
             var queue = ["en",lang,"en"];
             var results = [];
             var init = {
                 conv:data.lyrics,
-                lang:"en",
+                lang:translate.languages["en"],
                 text:data.lyrics.replace(/(?:\r\n|\r|\n)/g, '<br>')
             }
             results.push(init);
@@ -85,7 +89,7 @@ app.get('/song/:id', async (req, res) => {
                     let newTranslation = await translate(results[i-1].conv,{from:queue[i-1],to:queue[i]});
                     var conversion = {
                         conv:newTranslation.text,
-                        lang:results[i-1].lang+"->"+queue[i],
+                        lang:results[i-1].lang+"->"+translate.languages[queue[i]],
                         text:newTranslation.text.replace(/(?:\r\n|\r|\n)/g, '<br>')
                     }
                     results.push(conversion);
@@ -98,6 +102,8 @@ app.get('/song/:id', async (req, res) => {
                 title:song.response.song.title_with_featured,
                 img:song.response.song.song_art_image_thumbnail_url,
                 artist:song.response.song.album.full_title,
+                languages:languages,
+                current_lang:lang,
                 results:results.reverse()
             }
             return res.render("lyrics.html",rendererData);
@@ -111,18 +117,11 @@ app.get('/song/:id', async (req, res) => {
 });
 
 app.get("/test/",async (req,res) => {
-    fetch(`https://genius.com/King-gizzard-and-the-lizard-wizard-self-immolate-lyrics`, {
-        method: 'GET',
-    }).then(response => {
-        if (response.ok) return response.text()
-        throw new Error('Could not get song url ...')
-    }).then(parseSongHTML).then(data => {
-        var lyr = data.lyrics.replace(/(?:\r\n|\r|\n)/g, '<br>');
-        var renderer={
-            lyrics : lyr
-        }
-        return res.render('lyrics.html',renderer) ;
-    });
+    console.log(translate.languages);
+    return res.send("test");
 });
+
+var languages = JSON.parse(JSON.stringify(translate.languages));
+delete languages.auto;
 
 app.listen(port, () => console.log(`Example app listening at http://localhost:${port}`))

@@ -1,7 +1,7 @@
 {% extends "default.html" %}
 
 {% block header %}
-<title>Test</title>
+<title>{{ title }}</title>
 <style>
     #header{
         margin-top: 30px ;
@@ -37,11 +37,23 @@
                     <div class="col-md-2">
                         <img src="{{ img }}" class="card-img">
                     </div>
-                    <div class="col-md-10">
+                    <div class="col-md-6">
                         <div class="card-body">
                             <h2 class="card-title">{{ title }}</h2>
                             <p class="card-text">{{ artist }}</p>
                         </div>
+                    </div>
+                    <div class="col-md-4">
+                        <h5>Language Select</h5>
+                        <form method="get" action="" class="form-inline my-2 my-lg-0">
+                            <select name="lang" class="custom-select" id="inputGroupSelect01">
+                                {% for abr,lang in languages %}
+                                <option {% if abr==current_lang %} selected {%- endif %} value="{{ abr }}">{{ lang }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Convert</button>
+                        </form>
+
                     </div>
                 </div>
             </div>
