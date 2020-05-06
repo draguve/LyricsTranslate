@@ -27,7 +27,7 @@ app.get('/', function (req, res) {
 app.post('/', function(req, res) {
     var search = req.body.query;
     geniusClient.search(search, function (error, results) {
-        if(error) return res.send(error);
+        if(error) return res.render("error.html",{msg:"Could'nt Search",additional:error});
         results = JSON.parse(results);
         var hits = [];
         results.response.hits.forEach(element => {
@@ -67,10 +67,12 @@ app.get('/song/:id', async (req, res) => {
     //check
     if(langs){
         langs = langs.split(",");
-        console.log(langs);
+        if(langs.length<=0){
+            return res.render("error.html",{msg:"Please Select A Language"});
+        }
         for(var i=0;i<langs.length;i++){
             if(!(langs[i] in languages)){
-                return res.send("lang error");
+                return res.render("error.html",{msg:"Language Not Available"});
             }
             current_lang = current_lang+languages[langs[i]]+",";
         }
@@ -81,7 +83,7 @@ app.get('/song/:id', async (req, res) => {
         current_lang = "French"
     }
     geniusClient.getSong(req.params.id, function (error, song) {
-        if(error) return res.send(error)
+        if(error) res.render("error.html",{msg:"Could'nt get the song",additional:error});
         song = JSON.parse(song);
         fetch(`https://genius.com${song.response.song.path}`, {
             method: 'GET',
@@ -108,7 +110,7 @@ app.get('/song/:id', async (req, res) => {
                     results.push(conversion);
                 }catch(error){
                     console.error(error);
-                    return res.send(error);
+                    return res.render("error.html",{msg:"The server is hugged to death,Please come again later"});
                 }
             }
             var rendererData = {
@@ -123,16 +125,11 @@ app.get('/song/:id', async (req, res) => {
             return res.render("lyrics.html",rendererData);
             // res.send(data.lyrics);
         }).catch(err => {
-            res.send(err);
             console.error(err);
+            return res.render("error.html",{msg:"Could'nt get the song"});
         });
     });
     //return res.render('lyrics.html');
-});
-
-app.get("/test/",async (req,res) => {
-    console.log(translate.languages);
-    return res.send("test");
 });
 
 var languages = JSON.parse(JSON.stringify(translate.languages));

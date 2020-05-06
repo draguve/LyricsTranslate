@@ -1,0 +1,48 @@
+{% extends "default.html" %}
+
+{% block header %}
+<title> {% if msg %} {{ msg }} {% else %} Error :( {% endif %} </title>
+<style>
+    #header{
+        margin-top: 30px ;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <nav class="navbar navbar-light justify-content-between" id="header">
+        <div class="row">
+            <div class="col-md-9">
+                <a href="/" class="navbar-brand">Lyrics</a>
+            </div>
+            <div class="col-md-3">
+                <form  method="post" action="/" class="form-inline my-2 my-lg-0">
+                    <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search" name="query">
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+                </form>
+            </div>
+        </div>
+    </nav>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="error-template text-center">
+                <h1>
+                    Oops!</h1>
+                <h2>
+                    500</h2>
+                <div class="error-details">
+                    Sorry, Something got fucked :( <br>
+                    {{ msg }}
+                    <br><br>
+                    {% if additional %}
+                    Maybe send this over to draguve@gmail.com <br>
+                    {{ additional }}
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

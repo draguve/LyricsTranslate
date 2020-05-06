@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <style type="text/css">
         img { max-width: 100% }
         .login-form {
@@ -33,16 +34,31 @@
         #song-card {
             margin-bottom: 20px;
         }
+
+        html, body {
+            height: 100%;
+        }
+        .wrapper {
+            min-height: 100%;
+            margin-bottom: -50px;
+            padding-bottom: 50px;
+        }
+        footer {
+            height: 50px;
+        }
     </style>
     {% block header %}
         <title>Lyrics Translate</title>
     {% endblock %}
 </head>
 <body>
+<div class="wrapper">
 {% block body %}
 {% endblock %}
 
 {% block end %}
 {% endblock %}
+</div>
+{% include "footer.html" %}
 </body>
 </html>
