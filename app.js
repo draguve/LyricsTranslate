@@ -61,11 +61,24 @@ function parseSongHTML(htmlText) {
 }
 
 app.get('/song/:id', async (req, res) => {
-    var lang = req.query.lang;
-    if(lang in languages){
-
+    //var lang = req.query.lang;
+    var current_lang = "";
+    var langs = req.query.langs;
+    //check
+    if(langs){
+        langs = langs.split(",");
+        console.log(langs);
+        for(var i=0;i<langs.length;i++){
+            if(!(langs[i] in languages)){
+                return res.send("lang error");
+            }
+            current_lang = current_lang+languages[langs[i]]+",";
+        }
+        langs.unshift("en");
+        langs.push("en");
     }else{
-        lang = "fr";
+        langs = ["en","fr","en"]
+        current_lang = "French"
     }
     geniusClient.getSong(req.params.id, function (error, song) {
         if(error) return res.send(error)
@@ -76,7 +89,7 @@ app.get('/song/:id', async (req, res) => {
             if (response.ok) return response.text()
             throw new Error('Could not get song url ...')
         }).then(parseSongHTML).then(async(data) => {
-            var queue = ["en",lang,"en"];
+            var queue = langs;
             var results = [];
             var init = {
                 conv:data.lyrics,
@@ -102,9 +115,10 @@ app.get('/song/:id', async (req, res) => {
                 title:song.response.song.title_with_featured,
                 img:song.response.song.song_art_image_thumbnail_url,
                 artist:song.response.song.album.full_title,
-                languages:languages,
-                current_lang:lang,
-                results:results.reverse()
+                //languages:languages,
+                current_lang:current_lang,
+                results:results.reverse(),
+                whitelist:whitelist
             }
             return res.render("lyrics.html",rendererData);
             // res.send(data.lyrics);
@@ -123,5 +137,10 @@ app.get("/test/",async (req,res) => {
 
 var languages = JSON.parse(JSON.stringify(translate.languages));
 delete languages.auto;
+var whitelist = []
+for (const [key, value] of Object.entries(languages)) {
+    whitelist.push({value:value,code:key});
+}
+whitelist = JSON.stringify(whitelist);
 
 app.listen(port, () => console.log(`Example app listening at ${port}`))

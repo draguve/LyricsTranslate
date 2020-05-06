@@ -2,6 +2,9 @@
 
 {% block header %}
 <title>{{ title }}</title>
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css" rel="stylesheet" type="text/css" />
 <style>
     #header{
         margin-top: 30px ;
@@ -46,11 +49,13 @@
                     <div class="col-md-4">
                         <h5>Language Select</h5>
                         <form method="get" action="" class="form-inline my-2 my-lg-0">
-                            <select name="lang" class="custom-select" id="inputGroupSelect01">
-                                {% for abr,lang in languages %}
-                                <option {% if abr==current_lang %} selected {%- endif %} value="{{ abr }}">{{ lang }}</option>
-                                {% endfor %}
-                            </select>
+<!--                            <select name="lang" class="custom-select" id="inputGroupSelect01">-->
+<!--                                {% for abr,lang in languages %}-->
+<!--                                <option {% if abr==current_lang %} selected {%- endif %} value="{{ abr }}">{{ lang }}</option>-->
+<!--                                {% endfor %}-->
+<!--                            </select>-->
+<!--                            <br>-->
+                            <input name="langs" id='langs' value='{{ current_lang }}'>
                             <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Convert</button>
                         </form>
 
@@ -78,5 +83,24 @@
         </div>
     </section>
 </div>
+{% endblock %}
 
+{% block end %}
+<script>
+    var whitelist = JSON.parse('{{ whitelist | safe }}');
+    var input = document.querySelector('#langs');
+    var settings = {
+        enforceWhitelist:true,
+        autoComplete:{
+            enabled:true
+        },
+        duplicates:true,
+        maxTags:4,
+        placeholder:"Input Language Chain",
+        whitelist:whitelist,
+        originalInputValueFormat: valuesArr => valuesArr.map(item => item.code).join(',')
+    }
+    var tagify = new Tagify(input,settings);
+
+</script>
 {% endblock %}
